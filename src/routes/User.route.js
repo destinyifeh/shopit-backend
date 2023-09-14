@@ -1,9 +1,12 @@
 const express = require("express");
 const router = express.Router();
+
 const controller = require("../controllers/User.controller");
+const apiRequestLimiter = require("../middlewares/rateLimit.middleware");
 const { authenticateUser } = require("../middlewares/auth");
+
 router.post("/register-user", controller.registerUser);
-router.post("/login-user", controller.loginUser);
+router.post("/login-user", apiRequestLimiter, controller.loginUser);
 router.post("/single-user/:id", authenticateUser, controller.getUser);
 router.post("/user/forgot-pass", controller.forgotPassword);
 router.post("/user-token/:id", controller.verifyToken);
