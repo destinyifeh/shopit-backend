@@ -1,0 +1,11 @@
+const express = require("express");
+const router = express.Router();
+const upload = require("../middlewares/Multer.middleware");
+const controller = require("../controllers/Item.controller");
+router.post("/add-item", controller.addItem);
+router.get("/items", controller.getItems);
+router.get("/single-item", controller.getItem);
+router.get("/item/:id", controller.deleteItem);
+router.put("/item/:id", controller.updateItem);
+router.patch("/item/like/:id", controller.likeItem);
+module.exports = router;
