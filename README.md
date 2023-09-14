@@ -1,6 +1,6 @@
 ## 📝 About
 
-Welcome to Shopit backend, your ultimate destination for hassle-free online shopping! Built with node, our app offers a seamless and enjoyable shopping experience right at your fingertips.
+Welcome to Shopit Backend, the powerhouse behind your ultimate destination for hassle-free online shopping! Our backend is built with Node.js, and it plays a pivotal role in delivering a seamless and enjoyable shopping experience to users.
 
 ### 🌟 Key Features
 
