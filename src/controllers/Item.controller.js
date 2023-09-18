@@ -1,6 +1,6 @@
 const Item = require("../models/Item.model");
 const uploadFile = require("../helpers/fileUpload.helper");
-exports.addItem = async (req, res, next) => {
+exports.addItem = async (req, res) => {
   console.log(req.body, "file");
   try {
     await uploadFile.upload(
@@ -9,8 +9,10 @@ exports.addItem = async (req, res, next) => {
         folder: "trust",
       },
       (err, result) => {
-        if (err) console.log(err, "file error");
-
+        if (err) {
+          console.log(err, "file error");
+          return false;
+        }
         console.log(result, "response from Cloudinary");
         const postDocument = {
           title: req.body.title,
@@ -29,14 +31,12 @@ exports.addItem = async (req, res, next) => {
           })
           .catch((err) => {
             console.log(err.message);
-            res.status(500).send(err);
           });
       }
     );
   } catch (err) {
     console.log("Add-item error:" + err);
     res.status(500).send(err);
-    next(err);
   }
 };
 
@@ -66,21 +66,28 @@ exports.getItem = async (req, res) => {
 
 exports.deleteItem = async (req, res) => {
   try {
-    let item = await Item.findOneAndDelete({ _id: req.params.id });
-    if (item) {
+    let item = await Item.findOne({ _id: req.params.id });
+    if (item.imageId) {
       uploadFile.destroy(item.imageId, (err, result) => {
         if (err) {
           console.log(err, "image deleting error");
           res.send("Item image deleting error");
         }
+        Item.findOneAndDelete({ _id: req.params.id });
+
         console.log(result, "ree");
         //item.deleteOne();
         res.status(200).json({ message: "Item deleted", itemId: item._id });
       });
     } else {
-      res.status(404).send("Item not found");
+      //  Item.findOneAndDelete({ _id: req.params.id });
+
+      item.deleteOne();
+      res.status(200).json({ message: "Item deleted", itemId: item._id });
     }
   } catch (err) {
+    console.log(err);
+
     res.status(500).json({ err: err });
   }
 };
@@ -110,8 +117,10 @@ exports.updateItem = async (req, res) => {
             folder: "trust",
           },
           (err, result) => {
-            if (err) console.log(err, "file error");
-
+            if (err) {
+              console.log(err, "file error");
+              return false;
+            }
             console.log(result, "response from Cloudinary");
             item.title = req.body.title;
             item.desc = req.body.desc;
@@ -129,7 +138,6 @@ exports.updateItem = async (req, res) => {
               })
               .catch((err) => {
                 console.log(err.message);
-                res.status(500).send(err);
               });
           }
         );
