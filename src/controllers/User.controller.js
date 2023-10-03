@@ -10,19 +10,22 @@ exports.registerUser = async (req, res) => {
   const { username, email, password, password2 } = req.body;
   try {
     let existingUser = await User.findOne({
-      $or: [{ username: username }, { email: email }],
+      $or: [
+        { username: username.toLowerCase().trim() },
+        { email: email.toLowerCase().trim() },
+      ],
     });
     if (existingUser) {
       return res.status(400).send("username or email already exist");
-    } else if (password !== password2) {
+    } else if (password.trim() !== password2.trim()) {
       return res.status(401).json({ message: "Password is incorrect" });
     }
-    const securePassword = await bcrypt.hash(password, 10);
+    const securePassword = await bcrypt.hash(password.trim(), 10);
     let newUser = new User();
-    newUser.username = username.toLowerCase();
-    newUser.email = email.toLowerCase();
+    newUser.username = username.toLowerCase().trim();
+    newUser.email = email.toLowerCase().trim();
     newUser.password = securePassword;
-    username.toLowerCase() === process.env.isAdmin
+    username.toLowerCase().trim() === process.env.isAdmin
       ? (newUser.isAdmin = true)
       : (newUser.isAdmin = false);
     await newUser.save();
@@ -40,12 +43,18 @@ exports.loginUser = async (req, res) => {
   const { user, password } = req.body;
   try {
     let existingUser = await User.findOne({
-      $or: [{ username: user.toLowerCase() }, { email: user.toLowerCase() }],
+      $or: [
+        { username: user.toLowerCase().trim() },
+        { email: user.toLowerCase().trim() },
+      ],
     });
     if (!existingUser) {
       return res.json({ message: "user does not exist", code: 401 });
     }
-    const isMatch = await bcrypt.compare(password, existingUser.password);
+    const isMatch = await bcrypt.compare(
+      password.trim(),
+      existingUser.password
+    );
     console.log(isMatch, "real");
     if (!isMatch) {
       return res.json({ message: "Invalid password", code: 401 });
